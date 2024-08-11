@@ -1,3 +1,5 @@
-.next
-node_modules
-.env
+client/.next
+client/node_modules
+client/.env
+server/queueingServer/.env
+server/env

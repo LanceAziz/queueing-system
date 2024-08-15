@@ -100,7 +100,9 @@ export default function Services() {
                     </button>
                 ))}
             </div>
-            <Print ref={componentRef} num={addedClient.client_num} type={addedClient.client_type} date={addedClient.client_date} time={addedClient.client_time} />
+            <div className="">
+                <Print ref={componentRef} num={addedClient.client_num} type={addedClient.client_type} date={addedClient.client_date} time={addedClient.client_time} />
+            </div>
             <table className="table-auto border-separate border-spacing-x-5 absolute top-0 left-0">
                 <thead>
                     <tr>

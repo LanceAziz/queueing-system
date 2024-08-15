@@ -1,19 +1,20 @@
-import logo from "../../../../public/Images/Logo.png"
+import React, { forwardRef } from 'react';
 import Image from "next/image";
+import logo from "../../../../public/Images/Logo.png";
 
-export default function Print({ num = 0, type = "---", date = "---", time = "---" }) {
+const PrintableComponent = forwardRef(({ num = 0, type = "---", date = "---", time = "---" }, ref) => {
     function reformatDate(dateString) {
-        if (dateString == '---') {
-            return '---'
+        if (dateString === '---') {
+            return '---';
         } else {
             const [month, day, year] = dateString.split("/");
             return `${day}/${month}/${year}`;
         }
-
     }
+
     return (
-        <main className="flex flex-col items-start bg-blue-400">
-            <div className="bg-yellow-300 px-16">
+        <main ref={ref} className="flex flex-col items-start">
+            <div className="px-16">
                 <div className="w-40 my-5">
                     <Image src={logo} alt="المعهد العالي للدراسات" />
                 </div>
@@ -28,4 +29,6 @@ export default function Print({ num = 0, type = "---", date = "---", time = "---
             </div>
         </main>
     );
-}
+});
+
+export default PrintableComponent;

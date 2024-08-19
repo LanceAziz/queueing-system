@@ -4,9 +4,18 @@ from rest_framework import status
 from .models import Client
 from .serializer import ClientSerializer
 from datetime import datetime
+# from django.contrib.auth.models import User
 
 @api_view(['GET'])
-def get_clients(request):
+def get_all_clients(request):
+    today = datetime.now().date()
+    print(today)
+    clients = Client.objects.all()
+    serializeredData = ClientSerializer(clients, many=True)
+    return Response(serializeredData.data)
+
+@api_view(['GET'])
+def get_current_clients(request):
     today = datetime.now().date()
     print(today)
     clients = Client.objects.filter(client_date=today)

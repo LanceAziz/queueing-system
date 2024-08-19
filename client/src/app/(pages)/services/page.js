@@ -30,7 +30,7 @@ export default function Services() {
     }, []);
 
     const fetchClients = async () => {
-        const response = await fetch('http://127.0.0.1:8000/api/clients/')
+        const response = await fetch('http://127.0.0.1:8000/api/clients/current')
         const data = await response.json();
         setClients(data);
         findMaxClients(data);
@@ -53,12 +53,7 @@ export default function Services() {
         const now = new Date();
         const currentDate = now.toLocaleDateString();
         const currentTime = now.toLocaleTimeString();
-        let newClientNum = ''
-        if (type == 'شئون طلبة' && max[type] == 0) {
-            newClientNum = max[type] + 500;
-        } else {
-            newClientNum = max[type] + 1;
-        }
+        let newClientNum = max[type] + 1
 
         const data = {
             "client_num": newClientNum,
@@ -83,7 +78,7 @@ export default function Services() {
         if (response.ok) {
             fetchClients();
         }
-        handlePrint()
+        // handlePrint()
     };
     return (
         <main className="h-screen bg-light flex flex-col justify-center items-center text-dark">
@@ -100,7 +95,7 @@ export default function Services() {
                     </button>
                 ))}
             </div>
-            <div className="">
+            <div className="absolute right-0 top-0">
                 <Print ref={componentRef} num={addedClient.client_num} type={addedClient.client_type} date={addedClient.client_date} time={addedClient.client_time} />
             </div>
             <table className="table-auto border-separate border-spacing-x-5 absolute top-0 left-0">

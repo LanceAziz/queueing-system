@@ -4,10 +4,10 @@ POST http://127.0.0.1:8000/api/teller/register/
 Content-Type: application/json
 
 {
-    "username": "Safe_3",
-    "password": "Moheb_aziz",
+    "username": "mark237",
+    "password": "mark 123",
     "teller_type": "خزنة", 
-    "teller_num": 4
+    "teller_num": 1
 }
 
 ###
@@ -16,8 +16,8 @@ POST http://127.0.0.1:8000/api/teller/login/
 Content-Type: application/json
 
 {
-  "username": "Safe_3",
-  "password": "Safe_3@123"
+  "username": "mark237",
+  "password": "mark 123"
 }
 
 ###

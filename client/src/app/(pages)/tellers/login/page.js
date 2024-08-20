@@ -38,12 +38,15 @@ export default function Login() {
         if (!response.ok) {
             setValid(false)
         } else {
-            const { token, teller } = await response.json();
+            const { refresh, access } = await response.json();
             setValid(true)
             router.push('http://localhost:3000/tellers/dashboard');
-            console.log(token);
-            console.log(teller.teller_num);
-            console.log(teller.teller_type);
+            console.log("access token: " + access);
+            console.log("refresh token: " + refresh);
+            // console.log(teller.num);
+            // console.log(teller.type);
+            // console.log(response.json);
+            
         }
     }
 

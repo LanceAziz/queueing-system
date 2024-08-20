@@ -9,6 +9,8 @@ from .serializer import ClientSerializer, TellerSerializer
 from datetime import datetime
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(['GET'])
 def get_all_clients(request):
@@ -24,7 +26,8 @@ def get_current_clients(request):
     print(today)
     clients = Client.objects.filter(client_date=today)
     serializeredData = ClientSerializer(clients, many=True)
-    return Response(serializeredData.data)
+    if (serializeredData):
+        return Response(serializeredData.data)
 
 @api_view(['POST'])
 def create_clients(request):
@@ -51,30 +54,41 @@ def register_teller(request):
 @api_view(['POST'])
 def login_teller(request):
     data = request.data
-    teller = get_object_or_404(Teller, username=data['username'])
-    if not teller.check_password(data['password']):
-        return Response({"detail": "No Teller matches the given query."}, status=status.HTTP_400_BAD_REQUEST)
-    token, created = Token.objects.get_or_create(user=teller)
-    serializer = TellerSerializer(instance=teller)
-    response = JsonResponse({"message": "Login successful"})
-    response.set_cookie(
-        key='auth_token',
-        value=token.key,
-        max_age=3600,  # Cookie expiry time in seconds
-        httponly=True,  # Makes the cookie inaccessible to JavaScript
-    )
-    
-    return response
-    # response = Response({"teller": serializer.data})
-    # response.set_cookie(
-    #     key='token', 
-    #     value=token, 
-    #     httponly=True,  # This makes the cookie inaccessible to JavaScript for security reasons.
-    #     samesite='Lax',  # Adjust this based on your needs, it helps prevent CSRF attacks.
-    #     secure=True if request.is_secure() else False,  # Send the cookie over HTTPS if the request is secure.
-    #     # max_age=60 * 60 * 24,
-    # )
-    # return response
+    username = data.get("username")
+    password = data.get("password")
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        response = JsonResponse({
+            "message": "Login successful",
+        })
+
+        # Set the HTTP-only cookies
+        response.set_cookie(
+            key='accessToken',
+            value=access_token,
+            httponly=True,
+            secure=True,  # Set to True if using HTTPS
+            samesite='Lax',  # Can be 'Strict', 'Lax', or 'None'
+            max_age=60 * 60 * 24,  # 1 day expiry (optional)
+        )
+
+        response.set_cookie(
+            key='refreshToken',
+            value=refresh_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax',
+            max_age=60 * 60 * 24 * 7,  # 1 week expiry (optional)
+        )
+
+        return response
+    else:
+        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication,TokenAuthentication])

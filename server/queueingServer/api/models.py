@@ -12,9 +12,9 @@ class Voice(models.Model):
         return self.voice_name
 
 class Teller(AbstractUser):
-    teller_id = models.AutoField(primary_key=True)
-    teller_num = models.IntegerField()
-    teller_type = models.CharField(max_length=45)
+    id = models.AutoField(primary_key=True)
+    num = models.IntegerField()
+    type = models.CharField(max_length=45)
 
     def __str__(self):
         return str(self.teller_num)

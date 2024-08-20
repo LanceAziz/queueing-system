@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 
 class Voice(models.Model):
@@ -11,12 +11,10 @@ class Voice(models.Model):
     def __str__(self):
         return self.voice_name
 
-class Teller(User):
+class Teller(AbstractUser):
     teller_id = models.AutoField(primary_key=True)
-    teller_num = models.IntegerField(max_length=45)
+    teller_num = models.IntegerField()
     teller_type = models.CharField(max_length=45)
-    teller_username = models.CharField(max_length=45, unique=True)
-    teller_password = models.CharField(max_length=45, unique=True)
 
     def __str__(self):
         return str(self.teller_num)

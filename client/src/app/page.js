@@ -21,7 +21,7 @@ export default function Home() {
   }
   return (
     <div className="flex justify-center gap-5">
-      <Link href={'/tellers'}>tellers</Link>
+      <Link href={'/tellers/login'}>tellers</Link>
       <Link href={'/services'}>services</Link>
     </div>
   );

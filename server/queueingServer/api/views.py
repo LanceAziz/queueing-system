@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication,TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authtoken.models import Token
 from .models import Client, Teller
 from .serializer import ClientSerializer, TellerSerializer
@@ -56,7 +57,12 @@ def login_teller(request):
     data = request.data
     username = data.get("username")
     password = data.get("password")
+
+    if not username or not password:
+        return Response({"detail": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
     user = authenticate(username=username, password=password)
+    print(data)
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
@@ -65,37 +71,41 @@ def login_teller(request):
 
         response = JsonResponse({
             "message": "Login successful",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "teller_num": data.get("num"),
+            "teller_type": data.get("type")
         })
 
-        # Set the HTTP-only cookies
+        # Set the cookies
         response.set_cookie(
-            key='accessToken',
+            key='access',
             value=access_token,
             httponly=True,
-            secure=True,  # Set to True if using HTTPS
-            samesite='Lax',  # Can be 'Strict', 'Lax', or 'None'
-            max_age=60 * 60 * 24,  # 1 day expiry (optional)
+            secure=False,  # Set to True in production with HTTPS
+            max_age=5 * 60,  # 5 minutes for access token
+            samesite='Strict',
         )
-
         response.set_cookie(
-            key='refreshToken',
+            key='refresh',
             value=refresh_token,
             httponly=True,
-            secure=True,
-            samesite='Lax',
-            max_age=60 * 60 * 24 * 7,  # 1 week expiry (optional)
+            secure=False,  # Set to True in production with HTTPS
+            max_age=60 * 60 * 24,  # 24 hours for refresh token
+            samesite='Strict',
         )
 
         return response
     else:
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
+
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication,TokenAuthentication])
+@authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def test_token(request):
- return Response({
-     "username":request.user.username,
-     "teller_num":request.user.teller_num,
-     "teller_type":request.user.teller_type
-     })
+    return Response({
+        "username": request.user.username,
+        "teller_num": request.user.num,
+        "teller_type": request.user.type
+    })

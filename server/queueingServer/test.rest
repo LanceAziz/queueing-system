@@ -4,10 +4,10 @@ POST http://127.0.0.1:8000/api/teller/register/
 Content-Type: application/json
 
 {
-    "username": "mark237",
+    "username": "mark233",
     "password": "mark 123",
-    "teller_type": "خزنة", 
-    "teller_num": 1
+    "type": "خزنة", 
+    "num": 5
 }
 
 ###
@@ -23,8 +23,7 @@ Content-Type: application/json
 ###
 #Test Token Endpoint
 GET http://127.0.0.1:8000/api/teller/test_token/
-Content-Type: application/json
-Authorization: Token f9ca36f514b55bdcb715b1aeacddc86d981c4dfc
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI0MjA0NzIyLCJpYXQiOjE3MjQyMDQ0MjIsImp0aSI6IjFjZTUzZWQzOWU2YjRiMDg4Y2ZmMzM3YTIxMjBjODBmIiwidXNlcl9pZCI6NX0.BS-Whxi-Cs5oy6WxXAnE89-9TjhQy9v2IwCBeHbPcJk
 
 {
 

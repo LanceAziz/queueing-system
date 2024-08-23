@@ -5,7 +5,7 @@ import logo from "../../../../../public/Images/Logo.png"
 import { useRouter } from 'next/navigation'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import cookie from 'cookie'
+import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../../constants";
 
 export default function Login() {
     const [username, setUsername] = useState('')
@@ -42,6 +42,8 @@ export default function Login() {
             const data = await response.json();
             console.log(data);
             setValid(true)
+            localStorage.setItem(ACCESS_TOKEN, data.access);
+            localStorage.setItem(REFRESH_TOKEN, data.refresh);
             router.push('http://localhost:3000/tellers/dashboard');
         }
     }

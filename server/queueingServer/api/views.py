@@ -1,19 +1,14 @@
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.authentication import SessionAuthentication,TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Client, Teller
 from .serializer import ClientSerializer, TellerSerializer
 from datetime import datetime
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_all_clients(request):
     today = datetime.now().date()
     print(today)
@@ -22,6 +17,7 @@ def get_all_clients(request):
     return Response(serializeredData.data)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def get_current_clients(request):
     today = datetime.now().date()
     print(today)
@@ -31,6 +27,7 @@ def get_current_clients(request):
         return Response(serializeredData.data)
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def create_clients(request):
     data = request.data
     serializer = ClientSerializer(data=data)
@@ -40,72 +37,34 @@ def create_clients(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def register_teller(request):
-    data = request.data
-    serializer = TellerSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        teller = Teller.objects.get(username=data['username'])
-        teller.set_password(data['password'])
-        teller.save()
-        token = Token.objects.create(user=teller)
-        return Response({"token:": token.key, "user": serializer.data})
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@permission_classes([IsAuthenticated])
+def edit_clients(request):
+    # Get the authenticated user
+    user = request.user
+
+    try:
+        # Get the Teller associated with the authenticated user
+        teller = Teller.objects.get(id=user.id)
+    except Teller.DoesNotExist:
+        return Response({"detail": "Teller not found for this user."}, status=status.HTTP_404_NOT_FOUND)
+
+    today = timezone.now().date()
+
+    client = Client.objects.filter(client_teller_id__isnull=True, client_date=today, client_type=teller.type).order_by('client_num').first()
+
+    if client:
+        # Update the `client_teller_id` for the first client to the authenticated teller
+        client.client_teller_id = teller
+        client.save()  # Save the updated client instance
+        return Response({"detail": "Client updated successfully.","current_client":client.client_num,"teller_num":teller.num,"teller_type":teller.type}, status=status.HTTP_200_OK)
+    else:
+        return Response({"detail": "No clients available to update."}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
-def login_teller(request):
-    data = request.data
-    username = data.get("username")
-    password = data.get("password")
-
-    if not username or not password:
-        return Response({"detail": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
-
-    user = authenticate(username=username, password=password)
-    print(data)
-
-    if user is not None:
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        refresh_token = str(refresh)
-
-        response = JsonResponse({
-            "message": "Login successful",
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-            "teller_num": data.get("num"),
-            "teller_type": data.get("type")
-        })
-
-        # Set the cookies
-        response.set_cookie(
-            key='access',
-            value=access_token,
-            httponly=True,
-            secure=False,  # Set to True in production with HTTPS
-            max_age=5 * 60,  # 5 minutes for access token
-            samesite='Strict',
-        )
-        response.set_cookie(
-            key='refresh',
-            value=refresh_token,
-            httponly=True,
-            secure=False,  # Set to True in production with HTTPS
-            max_age=60 * 60 * 24,  # 24 hours for refresh token
-            samesite='Strict',
-        )
-
-        return response
-    else:
-        return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-@api_view(['GET'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def test_token(request):
-    return Response({
-        "username": request.user.username,
-        "teller_num": request.user.num,
-        "teller_type": request.user.type
-    })
+@permission_classes([AllowAny])
+def register_teller(request):
+    serializer = TellerSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

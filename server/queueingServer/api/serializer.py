@@ -17,3 +17,6 @@ class TellerSerializer(serializers.ModelSerializer):
         print(validated_data)
         teller = Teller.objects.create_user(**validated_data)
         return teller
+    
+class TextSerializer(serializers.Serializer):
+    text = serializers.CharField()

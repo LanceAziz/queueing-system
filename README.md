@@ -12,7 +12,6 @@ This project is a comprehensive queue management system designed to streamline t
 - **Functionality**: Clients are created in the database while waiting to be served.
 - **Integration**: Includes a thermal printer to print the client's number in the form of a receipt.
 
-<!-- ![Image 1](https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%201.png) -->
 <p align="center">
   <img src="https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%201.png" alt="Image 1"/>
 </p>
@@ -21,7 +20,9 @@ This project is a comprehensive queue management system designed to streamline t
 - **Functionality**: Teller users authenticate themselves, and upon successful login, they access a dashboard to serve the next client.
 - **Display Integration**: The current client number is displayed on a 2.3-inch 7-segment 3-digit display.
 
-![Image 2](https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%202.png)
+<p align="center">
+  <img src="https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%202.png" alt="Image 2"/>
+</p>
 
 ## Technology Stack
 

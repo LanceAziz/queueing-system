@@ -4,10 +4,10 @@ POST http://127.0.0.1:8000/api/teller/register/
 Content-Type: application/json
 
 {
-    "username": "lance",
-    "password": "lance123",
-    "type": "شئون طلبة", 
-    "num": 7
+    "username": "maha",
+    "password": "maha123",
+    "type": "خزنة", 
+    "num": 2
 }
 
 ###

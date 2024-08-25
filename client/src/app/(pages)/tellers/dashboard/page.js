@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 export default function Tellers() {
 
   const [noClients, setNoClients] = useState(false)
-  const [currentClient, setCurrentClient] = useState(0);
+  const [currentClient, setCurrentClient] = useState("-");
   const [tellerNum, setTellerNum] = useState(null)
   const [tellerType, setTellerType] = useState(null)
   const [audioUrl, setAudioUrl] = useState(null)
@@ -44,12 +44,11 @@ export default function Tellers() {
 
   const play_audio = async () => {
     const response = await fetch('http://127.0.0.1:8000/api/clients/audio/', {
-      method: 'POST',
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem(ACCESS_TOKEN)}`,
-      },
-      body: JSON.stringify({})  // No additional text is needed here
+      }
     });
 
     if (response.ok) {
@@ -79,6 +78,7 @@ export default function Tellers() {
       setTellerNum(data.teller_num);
       setTellerType(data.teller_type);
       setNoClients(false)
+      play_audio()
       console.log();
 
     } else if (response.status === 404) {
@@ -86,7 +86,6 @@ export default function Tellers() {
     } else if (response.status === 401) {
       router.push('http://localhost:3000/tellers/login')
     }
-    play_audio()
   }
 
   const logout = () => {

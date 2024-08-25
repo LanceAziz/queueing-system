@@ -9,6 +9,9 @@ from gtts import gTTS
 import os
 from django.conf import settings
 from django.http import FileResponse, Http404
+from threading import Lock
+import time
+lock = Lock();
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -42,6 +45,7 @@ def create_clients(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def edit_clients(request):
+    lock.acquire()
     user = request.user
     try:
         # Get the Teller associated with the authenticated user
@@ -51,12 +55,16 @@ def edit_clients(request):
 
     today = datetime.now().date()
     client = Client.objects.filter(client_served__isnull=True, client_date=today, client_type=teller.type).order_by('client_num').first()
+    # time.sleep(5)
 
     if client:
         client.client_served = teller.num
         client.save()
+        lock.release()
         return Response({"detail": "Client updated successfully.","current_client":client.client_num,"teller_num":teller.num,"teller_type":teller.type}, status=status.HTTP_200_OK)
+        
     else:
+        lock.release()
         return Response({"detail": "No clients available to update."}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
@@ -68,7 +76,7 @@ def register_teller(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-@api_view(['POST'])
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def speaker_audio(request):
 
@@ -91,7 +99,7 @@ def speaker_audio(request):
         text = f"الْآنَ، عَمِيلٌ رَقْمُ {client.client_num}، شُبَّاكُ رَقْمُ {teller.num}"
 
         # Generate audio from text
-        tts = gTTS(text=text, lang='ar')  # Example with Arabic language
+        tts = gTTS(text=text, lang='ar')
         audio_filename = 'audio.mp3'
         audio_path = os.path.join(settings.MEDIA_ROOT, audio_filename)
 

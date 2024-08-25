@@ -14,7 +14,7 @@ This project is a comprehensive queue management system designed to streamline t
 
 <!-- ![Image 1](https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%201.png) -->
 <p align="center">
-  <img src="https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%201.png" alt="Image 1" width="500"/>
+  <img src="https://github.com/LanceAziz/queueing-system/blob/main/Images/Image%201.png" alt="Image 1"/>
 </p>
 
 ### 3. Teller Portal
